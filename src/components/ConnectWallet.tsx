@@ -1,31 +1,17 @@
 import { Show, createSignal } from "solid-js";
 import { useWallet, walletState } from "../stores/walletStore";
-import { injected, metaMask, walletConnect } from "@wagmi/connectors";
+import { injected } from "@wagmi/core";
 
 export default function ConnectWallet() {
   const { actions } = useWallet();
   const [showOptions, setShowOptions] = createSignal(false);
 
-  const handleConnect = async (connectorType: "injected" | "metamask" | "walletconnect") => {
+  const handleConnect = async (connectorType: "injected" | "metamask") => {
     setShowOptions(false);
     
     try {
-      let connector;
-      switch (connectorType) {
-        case "metamask":
-          connector = metaMask();
-          break;
-        case "walletconnect":
-          connector = walletConnect({
-            projectId: "YOUR_WC_PROJECT_ID", // Replace with actual project ID
-          });
-          break;
-        case "injected":
-        default:
-          connector = injected();
-          break;
-      }
-      
+      // Use injected connector for both (MetaMask is an injected wallet)
+      const connector = injected();
       await actions.connect(connector);
     } catch (error) {
       console.error("Connection error:", error);
@@ -121,18 +107,6 @@ export default function ConnectWallet() {
             </div>
           </button>
 
-          <button
-            onClick={() => handleConnect("walletconnect")}
-            class="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
-          >
-            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-              <span class="text-indigo-600 font-bold text-xs">WC</span>
-            </div>
-            <div>
-              <p class="font-medium text-gray-900 dark:text-white">WalletConnect</p>
-              <p class="text-xs text-gray-500">Connect mobile wallets</p>
-            </div>
-          </button>
         </div>
       </Show>
 

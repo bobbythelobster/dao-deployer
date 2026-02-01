@@ -24,11 +24,6 @@ export {
   DEFAULT_GOVERNANCE_PARAMS,
   type GovernanceParams,
   
-  // IPFS configuration
-  IPFS_ENDPOINTS,
-  DEFAULT_IPFS_CONFIG,
-  type IPFSConfig,
-  
   // Transaction configuration
   TRANSACTION_CONFIG,
   
@@ -173,10 +168,6 @@ export {
   type ContractConfig,
 } from './contracts.ts';
 
-// Re-export enums from contracts
-export { ProposalStatus as ContractProposalStatus, VoteType as ContractVoteType } from './contracts.ts';
-export { TaskStatus as ContractTaskStatus, BidStatus as ContractBidStatus } from './contracts.ts';
-
 // ============================================================================
 // VIEM CLIENT
 // ============================================================================
@@ -275,7 +266,7 @@ export {
   getAragonClient,
   
   // DAO creation
-  createDAO,
+  createDAO as createAragonDAO,
   
   // Plugins
   createTokenVotingPlugin,
@@ -290,8 +281,8 @@ export {
   getPermissions,
   
   // Queries
-  getDAO,
-  getAllDAOs,
+  getDAO as getAragonDAO,
+  getAllDAOs as getAllAragonDAOs,
   getDAOPlugins,
   
   // Types
@@ -354,10 +345,6 @@ export {
   type TokenMetadata,
   type MintParams,
   type BurnParams,
-  
-  // ABIs
-  SoulBoundTokenABI as TokenABI,
-  ERC20ABI,
 } from './tokens.ts';
 
 // ============================================================================
@@ -396,10 +383,6 @@ export {
   type DAODetails,
   type TreasuryBalance,
   type UpdateSettingsParams,
-  
-  // ABIs
-  AragonDAOABI as DAOABI,
-  DAOFactoryABI,
 } from './dao.ts';
 
 // ============================================================================
@@ -435,13 +418,6 @@ export {
   type CreateProposalParams,
   type CastVoteParams,
   type ProposalResult,
-  
-  // Enums
-  ProposalStatus,
-  VoteType,
-  
-  // ABI
-  ProposalManagerABI,
 } from './proposals.ts';
 
 // ============================================================================
@@ -478,14 +454,46 @@ export {
   type AcceptBidParams,
   type CompleteTaskParams,
   type ReleasePaymentParams,
-  
-  // Enums
-  TaskStatus,
-  BidStatus,
-  
-  // ABI
-  TaskMarketABI,
 } from './tasks.ts';
+
+// ============================================================================
+// TEST UTILITIES
+// ============================================================================
+
+export {
+  // Mock accounts and contracts
+  MOCK_ACCOUNTS,
+  MOCK_CONTRACTS,
+  
+  // Mock clients
+  createMockPublicClient,
+  createMockWalletClient,
+  
+  // Mock data factories
+  createMockProposal,
+  createMockTask,
+  createMockBid,
+  createMockIPFSContent,
+  createMockProposalContent,
+  
+  // Mock IPFS
+  MockIPFSClient,
+  
+  // Test helpers
+  sleep,
+  generateRandomAddress,
+  generateRandomBytes32,
+  formatBigInt,
+  assertBigIntEquals,
+  assertAddressEquals,
+  assertIsValidAddress,
+  assertIsValidBytes32,
+  expectError,
+  expectRevert,
+  createStateSnapshot,
+  compareSnapshots,
+  type StateSnapshot,
+} from './test-utils.ts';
 
 // ============================================================================
 // VERSION

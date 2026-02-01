@@ -8,11 +8,13 @@ import {
   getChainId,
   watchAccount,
   watchChainId,
-  type Connector,
   injected
 } from "@wagmi/core";
 import { mainnet, sepolia, base, baseSepolia, arbitrum, optimism } from "viem/chains";
 import { http } from "viem";
+
+// Connector type
+import type { Connector } from "@wagmi/core";
 
 // Supported networks
 export const SUPPORTED_CHAINS = [

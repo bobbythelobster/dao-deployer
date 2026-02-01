@@ -7,15 +7,9 @@
 
 import {
   Context,
-  ContextParams,
   Client,
-  CreateDaoParams,
   DaoCreationSteps,
-  DaoMetadata,
-  PluginInstallItem,
   VotingMode,
-  TokenType,
-  VotingSettings,
 } from '@aragon/sdk-client';
 import { WalletClient, PublicClient } from 'viem';
 import { getChainById, ARAGON_ADDRESSES, DAO_PERMISSIONS } from './constants.ts';
@@ -43,18 +37,30 @@ export interface AragonClientConfig {
 }
 
 export interface DAOCreationConfig {
-  metadata: DaoMetadata;
-  plugins: PluginInstallItem[];
+  metadata: {
+    name: string;
+    description: string;
+    avatar?: string;
+    links: { name: string; url: string }[];
+  };
+  plugins: Array<{
+    id: string;
+    data: Uint8Array;
+  }>;
   ensSubdomain?: string;
 }
 
 export interface TokenVotingPluginConfig {
-  votingSettings: VotingSettings;
+  votingSettings: {
+    minDuration: number;
+    supportThreshold: number;
+    minParticipation: number;
+  };
   tokenAddress?: string;
   tokenName?: string;
   tokenSymbol?: string;
   tokenDecimals?: number;
-  tokenType: TokenType;
+  tokenType: 'erc20' | 'erc721' | 'native';
   mintingConfig?: {
     receivers: string[];
     amounts: bigint[];
@@ -107,7 +113,7 @@ export class AragonClientFactory {
       );
     }
 
-    const contextParams: ContextParams = {
+    const contextParams = {
       network: config.chainId.toString(),
       signer: config.walletClient,
       web3Providers: config.publicClient?.transport,
@@ -184,7 +190,7 @@ export async function* createDAO(
   config: DAOCreationConfig
 ): AsyncGenerator<DaoCreationSteps, void, unknown> {
   try {
-    const params: CreateDaoParams = {
+    const params = {
       metadataUri: await uploadDaoMetadata(client, config.metadata),
       plugins: config.plugins,
       ensSubdomain: config.ensSubdomain,
@@ -206,10 +212,15 @@ export async function* createDAO(
  */
 async function uploadDaoMetadata(
   client: Client,
-  metadata: DaoMetadata
+  metadata: DAOCreationConfig['metadata']
 ): Promise<string> {
   try {
-    const cid = await client.methods.pinMetadata(metadata);
+    const cid = await client.methods.pinMetadata({
+      name: metadata.name,
+      description: metadata.description,
+      avatar: metadata.avatar,
+      links: metadata.links,
+    });
     return `ipfs://${cid}`;
   } catch (error) {
     throw new AragonSDKError(
@@ -230,7 +241,7 @@ async function uploadDaoMetadata(
  */
 export function createTokenVotingPlugin(
   config: TokenVotingPluginConfig
-): PluginInstallItem {
+): { id: string; data: Uint8Array } {
   return {
     id: 'token-voting.plugin.dao.eth',
     data: new Uint8Array(), // Plugin-specific installation data
@@ -242,7 +253,7 @@ export function createTokenVotingPlugin(
  */
 export function createMultisigPlugin(
   config: MultisigPluginConfig
-): PluginInstallItem {
+): { id: string; data: Uint8Array } {
   return {
     id: 'multisig.plugin.dao.eth',
     data: new Uint8Array(), // Plugin-specific installation data
@@ -255,7 +266,7 @@ export function createMultisigPlugin(
 export function createCustomPlugin(
   pluginId: string,
   data: Uint8Array
-): PluginInstallItem {
+): { id: string; data: Uint8Array } {
   return {
     id: pluginId,
     data,
@@ -269,7 +280,7 @@ export function createCustomPlugin(
 export async function* installPlugin(
   client: Client,
   daoAddress: string,
-  plugin: PluginInstallItem
+  plugin: { id: string; data: Uint8Array }
 ): AsyncGenerator<unknown, void, unknown> {
   try {
     const params = {
@@ -305,7 +316,7 @@ export async function grantPermission(
       daoAddressOrEns: daoAddress,
       where: grant.where,
       who: grant.who,
-      permission: grant.permission as Parameters<Client['methods']['grantPermission']>[0]['permission'],
+      permission: grant.permission as any,
       condition: grant.condition,
     };
 
@@ -333,7 +344,7 @@ export async function revokePermission(
       daoAddressOrEns: daoAddress,
       where: revoke.where,
       who: revoke.who,
-      permission: revoke.permission as Parameters<Client['methods']['revokePermission']>[0]['permission'],
+      permission: revoke.permission as any,
     };
 
     await client.methods.revokePermission(params);
@@ -362,7 +373,7 @@ export async function hasPermission(
       daoAddressOrEns: daoAddress,
       where,
       who,
-      permission: permission as Parameters<Client['methods']['hasPermission']>[0]['permission'],
+      permission: permission as any,
       data: new Uint8Array(),
     };
 
@@ -418,7 +429,12 @@ export async function getDAO(
   daoAddress: string
 ): Promise<{
   address: string;
-  metadata: DaoMetadata;
+  metadata: {
+    name: string;
+    description: string;
+    avatar?: string;
+    links: { name: string; url: string }[];
+  };
   plugins: string[];
   creationBlock: number;
 } | null> {
@@ -429,7 +445,12 @@ export async function getDAO(
 
     return {
       address: daoAddress,
-      metadata: dao.metadata,
+      metadata: {
+        name: dao.metadata.name || '',
+        description: dao.metadata.description || '',
+        avatar: dao.metadata.avatar,
+        links: dao.metadata.links || [],
+      },
       plugins: dao.plugins.map(p => p.id),
       creationBlock: dao.creationBlockNumber,
     };
@@ -515,13 +536,7 @@ export function getAragonClient(config: AragonClientConfig): Client {
 
 export {
   Context,
-  ContextParams,
   Client,
-  CreateDaoParams,
   DaoCreationSteps,
-  DaoMetadata,
-  PluginInstallItem,
   VotingMode,
-  TokenType,
-  VotingSettings,
 };

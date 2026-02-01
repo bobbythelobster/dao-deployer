@@ -34,6 +34,15 @@ contract SoulBoundToken is ERC20, ERC20Burnable, Ownable {
     /// @notice Error thrown when unauthorized address tries to mint
     error UnauthorizedMinter();
     
+    /// @notice Error thrown when minter is already authorized
+    error MinterAlreadyAuthorized();
+    
+    /// @notice Error thrown when minter is not authorized
+    error MinterNotAuthorized();
+    
+    /// @notice Error thrown when batch mint total overflows
+    error BatchMintOverflow();
+    
     /// @notice Emitted when voting power is delegated
     /// @param delegator The address delegating voting power
     /// @param delegatee The address receiving delegated voting power
@@ -75,10 +84,11 @@ contract SoulBoundToken is ERC20, ERC20Burnable, Ownable {
     );
     
     /// @notice Structure to track delegation information
+    /// @dev Packed to save gas: address (20 bytes) + uint96 (12 bytes) + uint64 (8 bytes) = 2 slots
     struct Delegation {
         address delegatee;
-        uint256 amount;
-        uint256 delegatedAt;
+        uint96 amount;
+        uint64 delegatedAt;
     }
     
     /// @notice Mapping of delegator to their delegation info
