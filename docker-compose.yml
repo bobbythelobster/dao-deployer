@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dao-deployer-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - WALLET_CONNECT_PROJECT_ID=${WALLET_CONNECT_PROJECT_ID:-}
+      - INFURA_API_KEY=${INFURA_API_KEY:-}
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY:-}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    command: bun run dev
+    networks:
+      - dao-deployer-network
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Production build
+  app-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: dao-deployer-app-production
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - WALLET_CONNECT_PROJECT_ID=${WALLET_CONNECT_PROJECT_ID:-}
+      - INFURA_API_KEY=${INFURA_API_KEY:-}
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY:-}
+    networks:
+      - dao-deployer-network
+    profiles:
+      - production
+
+  # IPFS node for local development
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: dao-deployer-ipfs
+    ports:
+      - "5001:5001"  # API port
+      - "8080:8080"  # Gateway port
+      - "4001:4001"  # Swarm port
+    volumes:
+      - ipfs-data:/data/ipfs
+    environment:
+      - IPFS_SWARM_KEY=/key/swarm
+      - IPFS_PROFILE=server
+    networks:
+      - dao-deployer-network
+    profiles:
+      - full
+
+  # Local Ethereum node (Anvil/Foundry)
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: dao-deployer-anvil
+    ports:
+      - "8545:8545"
+    command: ["anvil", "--fork-url", "${MAINNET_RPC_URL:-}", "--block-time", "12", "--host", "0.0.0.0"]
+    networks:
+      - dao-deployer-network
+    profiles:
+      - blockchain
+
+  # Test runner
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dao-deployer-test
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: bun test
+    environment:
+      - NODE_ENV=test
+    networks:
+      - dao-deployer-network
+    profiles:
+      - test
+
+  # Contract compilation
+  contracts:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dao-deployer-contracts
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app/contracts
+    command: sh -c "forge build && forge test"
+    environment:
+      - FOUNDRY_PROFILE=ci
+    networks:
+      - dao-deployer-network
+    profiles:
+      - contracts
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: dao-deployer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - dao-deployer-network
+    profiles:
+      - cache
+
+volumes:
+  ipfs-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  dao-deployer-network:
+    driver: bridge
