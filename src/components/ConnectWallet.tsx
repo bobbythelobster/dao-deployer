@@ -23,19 +23,24 @@ export default function ConnectWallet() {
   };
 
   return (
-    <div class="relative">
+    <div class="relative" role="region" aria-label="Wallet Connection">
       <Show
         when={walletState.isConnected}
         fallback={
           <button
             onClick={() => setShowOptions(!showOptions())}
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2"
+            onKeyDown={(e) => e.key === 'Escape' && setShowOptions(false)}
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-expanded={showOptions()}
+            aria-haspopup="true"
+            aria-label="Connect wallet - opens wallet options"
           >
             <svg
               class="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"

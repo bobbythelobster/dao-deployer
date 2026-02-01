@@ -83,6 +83,22 @@ contract SoulBoundToken is ERC20, ERC20Burnable, Ownable {
         address indexed burner
     );
     
+    /// @notice Emitted when a minter is authorized
+    /// @param minter The address authorized
+    /// @param authorizedBy The address that authorized
+    event MinterAuthorized(
+        address indexed minter,
+        address indexed authorizedBy
+    );
+    
+    /// @notice Emitted when a minter is revoked
+    /// @param minter The address revoked
+    /// @param revokedBy The address that revoked
+    event MinterRevoked(
+        address indexed minter,
+        address indexed revokedBy
+    );
+    
     /// @notice Structure to track delegation information
     /// @dev Packed to save gas: address (20 bytes) + uint96 (12 bytes) + uint64 (8 bytes) = 2 slots
     struct Delegation {
