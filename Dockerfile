@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lock ./
 
-# Install dependencies
-RUN bun install --frozen-lockfile --production
+# Install all dependencies (needed for build)
+RUN bun install --frozen-lockfile
 
 # Stage 2: Build
 FROM oven/bun:1-alpine AS builder
@@ -30,12 +30,12 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+    adduser -S bunjs -u 1001
 
 # Copy built application
-COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+COPY --from=builder --chown=bunjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=bunjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=bunjs:nodejs /app/package.json ./
 
 # Set environment
 ENV NODE_ENV=production
@@ -43,7 +43,7 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Switch to non-root user
-USER nextjs
+USER bunjs
 
 # Expose port
 EXPOSE 3000
@@ -53,7 +53,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD bun -e "fetch('http://localhost:3000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))" || exit 1
 
 # Start the application
-CMD ["bun", "run", "dist/index.js"]
+CMD ["bun", "run", "dist/server.js"]
 
 # Stage 4: Development
 FROM oven/bun:1-alpine AS development

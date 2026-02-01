@@ -4,13 +4,18 @@
   "description": "Aragon OSX DAO Deployer with Soul-Bound Token Governance",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "build": "bun build ./index.ts --outdir ./dist",
+    "dev": "bun run --watch server.ts",
+    "build": "bun build ./server.ts --outdir ./dist --target bun && bun run build:public",
+    "build:public": "mkdir -p dist/public && cp -r public/* dist/public/ 2>/dev/null || true",
+    "start": "bun run dist/server.js",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
-    "lint": "eslint src/",
-    "format": "prettier --write src/"
+    "lint": "eslint src/ server.ts",
+    "format": "prettier --write src/ server.ts",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:staging": "./scripts/deploy.sh staging",
+    "deploy:production": "./scripts/deploy.sh production"
   },
   "dependencies": {
     "@aragon/sdk-client": "^1.26.0",

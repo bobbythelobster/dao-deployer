@@ -457,6 +457,36 @@ export {
 } from './tasks.ts';
 
 // ============================================================================
+// RETRY & RESILIENCE
+// ============================================================================
+
+export {
+  // Retry functions
+  withRetry,
+  retry,
+  
+  // Circuit breaker
+  CircuitBreaker,
+  
+  // Rate limiting
+  debounce,
+  throttle,
+  
+  // Batching
+  batchRequests,
+  
+  // Timeout utilities
+  withTimeout,
+  makeCancellable,
+  
+  // Types
+  type RetryOptions,
+  type RetryResult,
+  type CircuitBreakerOptions,
+  type CircuitState,
+} from './retry.ts';
+
+// ============================================================================
 // TEST UTILITIES
 // ============================================================================
 

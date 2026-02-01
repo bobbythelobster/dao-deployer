@@ -1,0 +1,71 @@
+# Render.com deployment configuration
+# This file configures automatic deployments for the DAO Deployer application
+
+services:
+  # Web service
+  - type: web
+    name: dao-deployer
+    runtime: docker
+    repo: https://github.com/yourusername/dao-deployer
+    branch: main
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: WALLET_CONNECT_PROJECT_ID
+        sync: false
+      - key: INFURA_API_KEY
+        sync: false
+      - key: ALCHEMY_API_KEY
+        sync: false
+    autoDeploy: true
+
+  # Staging environment
+  - type: web
+    name: dao-deployer-staging
+    runtime: docker
+    repo: https://github.com/yourusername/dao-deployer
+    branch: develop
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: WALLET_CONNECT_PROJECT_ID
+        sync: false
+      - key: INFURA_API_KEY
+        sync: false
+      - key: ALCHEMY_API_KEY
+        sync: false
+    autoDeploy: true
+
+# Background worker (optional - for processing blockchain events)
+  - type: worker
+    name: dao-deployer-worker
+    runtime: docker
+    repo: https://github.com/yourusername/dao-deployer
+    branch: main
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WORKER_MODE
+        value: "true"
+      - key: WALLET_CONNECT_PROJECT_ID
+        sync: false
+      - key: INFURA_API_KEY
+        sync: false
+      - key: ALCHEMY_API_KEY
+        sync: false
+    autoDeploy: true
