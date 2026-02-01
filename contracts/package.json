@@ -1,0 +1,37 @@
+{
+  "name": "dao-deployer-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for DAO Deployer - Aragon OSX compatible DAO factory with soul-bound governance tokens",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:verbose": "forge test -vvv",
+    "coverage": "forge coverage",
+    "coverage:report": "forge coverage --report lcov",
+    "deploy:local": "forge script script/Deploy.s.sol:DeployToLocal --fork-url http://localhost:8545 --broadcast",
+    "deploy:testnet": "forge script script/Deploy.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
+    "deploy:mainnet": "forge script script/Deploy.s.sol --rpc-url $MAINNET_RPC_URL --broadcast --verify",
+    "lint": "solhint 'src/**/*.sol'",
+    "format": "forge fmt",
+    "gas-report": "forge test --gas-report",
+    "snapshot": "forge snapshot",
+    "clean": "forge clean"
+  },
+  "keywords": [
+    "dao",
+    "ethereum",
+    "solidity",
+    "governance",
+    "soul-bound",
+    "aragon",
+    "foundry"
+  ],
+  "author": "DAO Deployer Team",
+  "license": "MIT",
+  "devDependencies": {
+    "solhint": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

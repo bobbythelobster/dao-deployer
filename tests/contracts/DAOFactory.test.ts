@@ -3,7 +3,7 @@
  * Tests for DAO creation, token deployment, and plugin installation
  */
 
-import { describe, it, expect, beforeEach, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeEach, beforeAll, afterEach } from 'bun:test';
 import { type Address, type WalletClient, type PublicClient, parseEther, getContract } from 'viem';
 import { getTestContext, GasTracker, takeSnapshot, revertToSnapshot } from '../setup';
 import { DAOFactoryABI, DAOFactoryBytecode } from './abis';

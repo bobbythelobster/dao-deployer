@@ -3,7 +3,7 @@
  * Tests for the soul-bound governance token with voting power
  */
 
-import { describe, it, expect, beforeEach, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeEach, beforeAll, afterEach } from 'bun:test';
 import { type Address, type WalletClient, type PublicClient, parseEther, getContract } from 'viem';
 import { getTestContext, GasTracker, takeSnapshot, revertToSnapshot } from '../setup';
 import { SoulBoundTokenABI, SoulBoundTokenBytecode } from './abis';

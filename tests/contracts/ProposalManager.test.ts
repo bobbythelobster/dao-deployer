@@ -3,7 +3,7 @@
  * Tests for proposal creation, voting, and lifecycle management
  */
 
-import { describe, it, expect, beforeEach, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeEach, beforeAll, afterEach } from 'bun:test';
 import { type Address, type WalletClient, type PublicClient, parseEther, getContract, keccak256, stringToHex } from 'viem';
 import { getTestContext, GasTracker, takeSnapshot, revertToSnapshot } from '../setup';
 import { ProposalManagerABI, ProposalManagerBytecode, SoulBoundTokenABI, SoulBoundTokenBytecode } from './abis';
